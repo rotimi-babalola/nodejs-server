@@ -5,6 +5,7 @@
 // Dependencies
 var fs = require('fs');
 var path = require('path');
+var helpers = require('./helpers');
 
 var lib = {
   baseDir: path.join(__dirname, '/../.data/'),
@@ -38,7 +39,11 @@ var lib = {
 
   read(dir, filename, callback) {
     fs.readFile(lib.baseDir + dir + '/' + filename + '.json', 'utf8', function (error, data) {
-      callback(error, data);
+      if (!error && data) {
+        callback(false, helpers.parseJSONToObject(data));
+      } else {
+        callback(error, data);
+      }
     });
   },
 
