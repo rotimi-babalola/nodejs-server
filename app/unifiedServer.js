@@ -72,10 +72,12 @@ var unifiedServer = function (request, response) {
 }
 
 // Define a request router
+// @todo fix this
 var router = {
   ping: handlers.ping,
-  users: handlers.user,
-  tokens: handlers.tokens,
+  users: handlers.user.users,
+  tokens: handlers.token.tokens,
+  notFound: handlers.notFound,
 }
 
 module.exports = unifiedServer;

@@ -8,13 +8,6 @@ var _data = require('../data');
 var helpers = require('../helpers');
 
 var userHandlers = {
-  // not found
-  notFound(data, callback) {
-    callback(404);
-  },
-  ping(data, callback) {
-    callback(200)
-  },
   users(data, callback) {
     var acceptableMethods = ['post', 'get', 'put', 'delete'];
 
