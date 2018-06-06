@@ -1,5 +1,7 @@
 var url = require('url');
 var StringDecoder = require('string_decoder').StringDecoder;
+var handlers = require('./lib/handlers');
+var helpers = require('./lib/helpers');
 
 // all server logic for http and https server
 var unifiedServer = function (request, response) {
@@ -44,7 +46,7 @@ var unifiedServer = function (request, response) {
       queryStringObject,
       method,
       headers,
-      payload: buffer,
+      payload: helpers.parseJSONToObject(buffer),
     };
 
     // route the request to the handler specified in the router
@@ -69,26 +71,10 @@ var unifiedServer = function (request, response) {
   });
 }
 
-
-// Define handlers 
-var handlers = {
-  // sample handlers
-  sample(data, callback) {
-    callback(200, { name: 'My name is sample' });
-  },
-  // not found
-  notFound(data, callback) {
-    callback(404);
-  },
-  ping(data, callback) {
-    callback(200)
-  }
-};
-
 // Define a request router
 var router = {
-  sample: handlers.sample,
   ping: handlers.ping,
+  users: handlers.users,
 }
 
 module.exports = unifiedServer;

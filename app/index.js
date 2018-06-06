@@ -8,7 +8,7 @@ var http = require('http');
 var https = require('https');
 var fs = require('fs');
 
-var config = require('./config');
+var config = require('./lib/config');
 var unifiedServer = require('./unifiedServer');
 
 // instantiating the server

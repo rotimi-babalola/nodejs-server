@@ -8,11 +8,13 @@ var environments = {
     httpPort: 3000,
     httpsPort: 3001,
     envName: 'staging',
+    hashSecret: 'EsteEsElSecreto',
   },
   production: {
     httpPort: 5000,
     httpsPort: 5001,
     envName: 'production',
+    hashSecret: 'EsteEsElSecretoDos',
   }
 };
 
