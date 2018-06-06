@@ -74,7 +74,8 @@ var unifiedServer = function (request, response) {
 // Define a request router
 var router = {
   ping: handlers.ping,
-  users: handlers.users,
+  users: handlers.user,
+  tokens: handlers.tokens,
 }
 
 module.exports = unifiedServer;

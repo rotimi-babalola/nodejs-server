@@ -3,11 +3,11 @@
  */
 
 // Dependencies
-var validators = require('./validation');
-var _data = require('./data');
-var helpers = require('./helpers');
+var validators = require('../validation');
+var _data = require('../data');
+var helpers = require('../helpers');
 
-var handlers = {
+var userHandlers = {
   // not found
   notFound(data, callback) {
     callback(404);
@@ -19,7 +19,7 @@ var handlers = {
     var acceptableMethods = ['post', 'get', 'put', 'delete'];
 
     if (acceptableMethods.includes(data.method)) {
-      handlers._users[data.method](data, callback);
+      userHandlers._users[data.method](data, callback);
     } else {
       callback(405);
     }
@@ -27,7 +27,7 @@ var handlers = {
 };
 
 // containers for users sub-methods
-handlers._users = {
+userHandlers._users = {
   post(data, callback) {
     var firstName = validators.validateName(data.payload.firstName);
     var lastName = validators.validateName(data.payload.lastName);
@@ -148,4 +148,4 @@ handlers._users = {
   }
 }
 
-module.exports = handlers;
+module.exports = userHandlers;
