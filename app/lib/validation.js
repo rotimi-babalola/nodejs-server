@@ -18,7 +18,14 @@ var validators = {
       }
       return false;
     }
-  }
+  },
+  validateTOS(tosAgreement) {
+    // typeof data.payload.tosAgreement === 'boolean' && data.payload.tosAgreement === true ? true : false;
+    if (typeof tosAgreement === 'boolean' && tosAgreement) {
+      return true;
+    }
+    return false;
+  },
 }
 
 module.exports = validators;
