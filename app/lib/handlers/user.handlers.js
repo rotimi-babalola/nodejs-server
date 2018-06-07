@@ -63,8 +63,6 @@ userHandlers._users = {
       callback(400, { error: 'Missing required fields' });
     }
   },
-  // @TODO only allow authenticated user access
-  // their object
   get(data, callback) {
     var phone = validators.validateLength(data.queryStringObject.phone, 10);
     if (phone) {
@@ -89,9 +87,6 @@ userHandlers._users = {
       callback(400, { Error: 'Missing required field' });
     }
   },
-  // required data: phone number
-  // Optional data: firstName, lastName, password (at least one should be specified)
-  // Only allow authed users to update their own details
   put(data, callback) {
     // check for required field
     var phone = validators.validateLength(data.queryStringObject.phone, 10);

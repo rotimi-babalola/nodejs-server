@@ -28,8 +28,8 @@ tokenHandlers._tokens = {
           if (hashedPassword === userData.hashedPassword) {
             // create token
             var tokenId = helpers.createRandomString(20);
-            // @todo put this in a helper
-            var expires = Date.now() + 1000 * 60 * 60;
+            // token lasts for only one hour
+            var expires = helpers.addHour(1);
             var tokenObject = {
               phone,
               id: tokenId,
@@ -78,7 +78,7 @@ tokenHandlers._tokens = {
           // ensure token has not expired
           // @todo put this in a helper
           if (tokenData.expires > Date.now()) {
-            tokenData.expires = Date.now() + 1000 * 60 * 60;
+            tokenData.expires = helpers.addHour(1);
             _data.update('tokens', id, tokenData, function (error) {
               if (!error) {
                 callback(200);

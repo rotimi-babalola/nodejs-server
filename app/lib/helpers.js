@@ -28,6 +28,10 @@ var helpers = {
     }
     return false;
   },
+  addHour(hours) {
+    // adds a specified number of hours to the current time
+    return Date.now() + (hours * 1000 * 60 * 60);
+  },
 };
 
 
