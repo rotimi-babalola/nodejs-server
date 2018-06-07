@@ -6,6 +6,7 @@
 var validators = require('../validation');
 var _data = require('../data');
 var helpers = require('../helpers');
+var tokenHandlers = require('./token.handlers');
 
 var userHandlers = {
   users(data, callback) {
@@ -26,7 +27,7 @@ userHandlers._users = {
     var lastName = validators.validateName(data.payload.lastName);
     var phone = validators.validateLength(data.payload.phone, 10);
     var password = validators.validateLength(data.payload.password);
-    var tosAgreement = validators.validateTOS(data.payload.tosAgreement);
+    var tosAgreement = validators.validateTrue(data.payload.tosAgreement);
 
     if (firstName && lastName && phone && password && tosAgreement) {
       _data.read('users', phone, function (error, data) {
@@ -67,14 +68,23 @@ userHandlers._users = {
   get(data, callback) {
     var phone = validators.validateLength(data.queryStringObject.phone, 10);
     if (phone) {
-      _data.read('users', phone, function (error, readData) {
-        if (!error && readData) {
-          delete readData.hashedPassword;
-          callback(200, readData);
+      // get the token from the headers
+      var token = typeof data.headers.token === 'string' ? data.headers.token : false;
+      // verify token
+      tokenHandlers._tokens.verifyToken(token, phone, function (tokenIsValid) {
+        if (tokenIsValid) {
+          _data.read('users', phone, function (error, readData) {
+            if (!error && readData) {
+              delete readData.hashedPassword;
+              callback(200, readData);
+            } else {
+              callback(404, { Error: 'User does not exist' });
+            }
+          });
         } else {
-          callback(404, { Error: 'User does not exist' });
+          callback(403, { Error: 'Missing token in header on invalid token' });
         }
-      });
+      })
     } else {
       callback(400, { Error: 'Missing required field' });
     }
@@ -93,24 +103,31 @@ userHandlers._users = {
 
     if (phone) {
       if (firstName || lastName || password) {
-        // lookup
-        _data.read('users', phone, function (error, userData) {
-          if (!error && userData) {
-            // update
-            userData = { ...userData, firstName, lastName, hashedPassword: helpers.hash(password) };
-            // update
-            _data.update('users', phone, userData, function (err) {
-              if (!err) {
-                callback(200);
+        var token = typeof data.headers.token === 'string' ? data.headers.token : false;
+        tokenHandlers._tokens.verifyToken(token, phone, function (tokenIsValid) {
+          if (tokenIsValid) {
+            // lookup
+            _data.read('users', phone, function (error, userData) {
+              if (!error && userData) {
+                // update
+                userData = { ...userData, firstName, lastName, hashedPassword: helpers.hash(password) };
+                // update
+                _data.update('users', phone, userData, function (err) {
+                  if (!err) {
+                    callback(200);
+                  } else {
+                    console.log(error);
+                    callback(500, { Error: 'Something went wrong with updating' });
+                  }
+                })
               } else {
-                console.log(error);
-                callback(500, { Error: 'Something went wrong with updating' });
+                callback(404, { Error: 'The specified user does not exist' });
               }
-            })
+            });
           } else {
-            callback(404, { Error: 'The specified user does not exist' });
+            callback(403, { Error: 'Missing token in header on invalid token' });
           }
-        });
+        })
       } else {
         callback(400, { Error: 'Missing fields to update' });
       }
@@ -122,6 +139,20 @@ userHandlers._users = {
   delete(data, callback) {
     var phone = validators.validateLength(data.queryStringObject.phone, 10);
     if (phone) {
+      var token = typeof data.headers.token === 'string' ? data.headers.token : false;
+      tokenHandlers._tokens.verifyToken(token, phone, function (tokenIsValid) {
+        if (tokenIsValid) {
+          _data.delete('users', phone, function (error) {
+            if (!error && readData) {
+              callback(200);
+            } else {
+              callback(404, { Error: 'User does not exist' });
+            }
+          });
+        } else {
+          callback(403, { Error: 'Missing token in header on invalid token' });
+        }
+      });
       _data.read('users', phone, function (error, readData) {
         if (!error && readData) {
           _data.delete('users', phone, function (error) {

@@ -19,9 +19,9 @@ var validators = {
       return false;
     }
   },
-  validateTOS(tosAgreement) {
+  validateTrue(booleanValue) {
     // typeof data.payload.tosAgreement === 'boolean' && data.payload.tosAgreement === true ? true : false;
-    if (typeof tosAgreement === 'boolean' && tosAgreement) {
+    if (typeof booleanValue === 'boolean' && booleanValue) {
       return true;
     }
     return false;

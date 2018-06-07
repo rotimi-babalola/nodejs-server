@@ -12,7 +12,7 @@ var tokenHandlers = {
       callback(405);
     }
   }
-}
+};
 
 tokenHandlers._tokens = {
   // required phone and password
@@ -29,7 +29,7 @@ tokenHandlers._tokens = {
             // create token
             var tokenId = helpers.createRandomString(20);
             // @todo put this in a helper
-            var expires = Date.now() + 1000 + 60 * 60;
+            var expires = Date.now() + 1000 * 60 * 60;
             var tokenObject = {
               phone,
               id: tokenId,
@@ -55,13 +55,82 @@ tokenHandlers._tokens = {
     }
   },
   get(data, callback) {
-
+    // @todo assign constants to variables
+    var id = validators.validateLength(data.queryStringObject.id, 20);
+    if (id) {
+      _data.read('tokens', id, function (error, tokenData) {
+        if (!error && tokenData) {
+          callback(200, tokenData);
+        } else {
+          callback(404, { Error: 'Token not found' });
+        }
+      });
+    } else {
+      callback(400, { Error: 'Missing required field' });
+    }
   },
   put(data, callback) {
-
+    var id = validators.validateLength(data.payload.id, 20);
+    var extend = validators.validateTrue(data.payload.extend);
+    if (id && extend) {
+      _data.read('tokens', id, function (error, tokenData) {
+        if (!error && tokenData) {
+          // ensure token has not expired
+          // @todo put this in a helper
+          if (tokenData.expires > Date.now()) {
+            tokenData.expires = Date.now() + 1000 * 60 * 60;
+            _data.update('tokens', id, tokenData, function (error) {
+              if (!error) {
+                callback(200);
+              } else {
+                callback(500, { Error: 'Could not update token' });
+              }
+            });
+          } else {
+            callback(400, { Error: 'Token has expired' });
+          }
+        } else {
+          callback(400, { Error: 'Token does not exist' });
+        }
+      });
+    } else {
+      callback(400, { Error: 'Missing required fields or invalid fields' });
+    }
   },
   delete(data, callback) {
-    //
+    var id = validators.validateLength(data.queryStringObject.id, 20);
+    if (id) {
+      _data.read('tokens', id, function (error, readData) {
+        if (!error && readData) {
+          _data.delete('tokens', id, function (error) {
+            if (!error) {
+              callback(200);
+            } else {
+              callback(500, { Error: 'Could not delete token' });
+            }
+          });
+        } else {
+          callback(404, { Error: 'Token does not exist' });
+        }
+      });
+    } else {
+      callback(400, { Error: 'Missing required field' });
+    }
+  },
+  // verify if token id is valid for a given user
+  verifyToken(id, phone, callback) {
+    _data.read('tokens', id, function (error, tokenData) {
+      if (!error && tokenData) {
+        // check if token is for user and hasn't expired
+        if (tokenData.phone === phone && tokenData.expires > Date.now()) {
+          callback(true);
+        } else {
+          callback(false);
+        }
+      } else {
+        callback(false);
+      }
+    })
   }
 }
 
